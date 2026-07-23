@@ -1,0 +1,18 @@
+<?php
+
+/*
+ * Demo widget
+ */
+class Public_footer extends Widget
+{
+
+    public function display($data)
+    {
+
+        if (!isset($data['items'])) {
+            $data['items'] = array('Home', 'About', 'Contact');
+        }
+
+        $this->view('widgets/public/footer', $data);
+    }
+}
