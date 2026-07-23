@@ -38,9 +38,21 @@ class Publik_model extends CI_Model
     // ======== KERMA ================
     public function getDataKerma()
     {
-        $this->datatables->select('a.id, referensi, judul, mitra, jenis_id, unit_id, tanggal_mulai, tanggal_selesai, dokumen, nm_unit');
+        $this->datatables->select('a.id, referensi, judul, mitra, jenis_id, unit_id, tanggal_mulai, tanggal_selesai, dokumen, nm_unit, c.nama_tipe');
         $this->datatables->from('kerma a');
         $this->datatables->join('kerma_unit b', 'a.unit_id=b.id', 'left');
+        $this->datatables->join('kerma_tipe c', 'a.tipe_id=c.id', 'left');
+
+        if ($this->input->post('filter_unit')) {
+            $this->datatables->where('b.id', $this->input->post('filter_unit'));
+        }
+        if ($this->input->post('filter_tipe')) {
+            $this->datatables->where('a.tipe_id', $this->input->post('filter_tipe'));
+        }
+        if ($this->input->post('filter_kategori')) {
+            $this->datatables->where('a.kategori_id', $this->input->post('filter_kategori'));
+        }
+
         return $this->datatables->generate();
     }
     // ======== KERMA ================

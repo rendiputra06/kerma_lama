@@ -3,6 +3,7 @@ $(document).ready(function(){
     CustomInitSelect2($('#filter_unit'), {url: $('#filter_unit').data('url'),});
     CustomInitSelect2($('#filter_jenis'), {url: $('#filter_jenis').data('url'),});
     CustomInitSelect2($('#filter_tipe'), {url: $('#filter_tipe').data('url'),});
+    CustomInitSelect2($('#filter_kategori'), {url: $('#filter_kategori').data('url'),});
 
     $('.select2').each(function(index, element) {
         var initValue = element.dataset.value != undefined ? element.dataset.value : false;
@@ -146,7 +147,7 @@ $(document).ready(function(){
                 var cek = '';
                 if(today < selesai){
                     if(today >= d){
-                        $(row).addClass('bg-warning text-white');
+                        $(row).addClass('bg-warning');
                         cek = 'kuning';
                     }else if(today <= d){
                         cek = 'biru';
@@ -277,6 +278,7 @@ $('#export').on('click', function(){
     var tipe   = $('#filter_tipe').val();
     var status = $('#filter_status_kerma').val(); // contoh tambahan
     var aktif  = $('#filter_status').val();        // contoh tambahan untuk status aktif/selesai
+    var kategori = $('#filter_kategori').val();
     
     // Susun query string (hanya kirim jika ada nilainya)
     var query = [];
@@ -285,6 +287,7 @@ $('#export').on('click', function(){
     if (tipe) query.push('tipe=' + tipe);
     if (status) query.push('status_kerma=' + status);
     if (aktif) query.push('filter_status=' + aktif);
+    if (kategori) query.push('kategori=' + kategori);
     
     var queryString = query.length ? '?' + query.join('&') : '';
 

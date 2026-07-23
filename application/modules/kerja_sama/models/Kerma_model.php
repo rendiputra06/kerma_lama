@@ -23,6 +23,9 @@ class Kerma_model extends CI_Model
         if ($this->input->post('filter_status_kerma')) {
             $this->datatables->where('a.status_kerma', $this->input->post('filter_status_kerma'));
         }
+        if ($this->input->post('filter_kategori')) {
+            $this->datatables->where('a.kategori_id', $this->input->post('filter_kategori'));
+        }
         $filter_status = $this->input->post('filter_status');
         $today = date('Y-m-d');
         // Mengubah logika filter berdasarkan status
@@ -130,12 +133,12 @@ class Kerma_model extends CI_Model
     }
     public function export()
     {
-        // Ambil filter dari GET
         $jenis  = $this->input->get('jenis');
         $unit   = $this->input->get('unit');
         $tipe   = $this->input->get('tipe');
         $status_kerma = $this->input->get('status_kerma');
         $filter_status = $this->input->get('filter_status');
+        $kategori = $this->input->get('kategori');
     
         $today = date('Y-m-d');
     
@@ -144,7 +147,7 @@ class Kerma_model extends CI_Model
         $this->db->join('kerma_unit b', 'a.unit_id=b.id');
         $this->db->join('kerma_tipe c', 'a.tipe_id=c.id', 'left');
         $this->db->join('kerma_jenis d', 'a.jenis_id=d.id');
-        $this->db->join('kerma_kategori e', 'a.kategori_id=e.id');
+        $this->db->join('kerma_kategori e', 'a.kategori_id=e.id', 'left');
         
         // Terapkan filter jika ada
         if (!empty($unit)) {
@@ -159,6 +162,9 @@ class Kerma_model extends CI_Model
         if (!empty($status_kerma)) {
             $this->db->where('a.status_kerma', $status_kerma);
         }
+        if (!empty($kategori)) {
+            $this->db->where('a.kategori_id', $kategori);
+        }
     
         // Filter status aktif, akan berakhir, selesai
         if ($filter_status === '0') { // Aktif
@@ -170,9 +176,6 @@ class Kerma_model extends CI_Model
         } elseif ($filter_status === '2') { // Selesai
             $this->db->where('tanggal_selesai <', $today);
         }
-    
-        // Grouping untuk penggabungan tipe (jika ada MoU+MoA)
-        $this->db->group_by('a.id');
     
         return $this->db->get()->result();
     }

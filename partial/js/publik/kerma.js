@@ -1,79 +1,108 @@
 $(document).ready(function(){
-    // $('.select2').each(function(index, element) {
-    //     var initValue = element.dataset.value != undefined ? element.dataset.value : false;
-    //     var item = $(element);
-    //     if (item.data('url')) {
-    //         CustomInitSelect2(item, {
-    //             url: item.data('url'),
-    //             initialValue: initValue,
-    //         }, myModalEl);
-    //     } else {
-    //         item.select2();
-    //     }
-    // });
-    kolom = [
-        {
-            data: "id",
-            orderable: false,
-            searchable: false,
-            render: function (data, type, row, meta) {
-                return meta.row + meta.settings._iDisplayStart + 1;
-            }
-        },
-        { data: "referensi" },
-        { data: "judul" },
-        { data: "nm_unit" },
-        { data: "mitra" },
-        // { data: "tanggal_selesai" },
-        { 
-            data: "tanggal_selesai",
-            orderable: false,
-            searchable: false,
-            render: function (data, type, row, meta) {
-                var akhir = new Date(data);
-                var today = new Date();
-                if(today <= akhir){
-                    result = '<span class="badge bg-primary">AKTIF</span>';
-                }else{
-                    result = '<span class="badge bg-danger">TIDAK AKTIF</span>';
-                }
-                return result;
-            } 
-        },
-    ];
-    kolom_def = [
-        {
-            targets: 6,
-            data: "dokumen",
-            render: function(data){
-                button = ' - ';
-                if(data != ''){
-                    // button = `<button class="btn btn-sm btn-success download-dokumen" data-file"${data}">
-                    // <i class="fa fa-file-download"></i> Download</button>`;
-                    button = `<a class="btn btn-sm btn-success download-dokumen" href="${site}/uploads/kerma/${data}">
-                    <i class="fa fa-file-download"></i> Download</a>`;
-                }
-                return button;
-            }
-        },
-    ];
-    default_table_init('kerma', 'publik/data_kerma', kolom, kolom_def);
-});
+    // Inisialisasi filter Select2 untuk Halaman Publik
+    CustomInitSelect2($('#filter_unit'), {url: $('#filter_unit').data('url'),});
+    CustomInitSelect2($('#filter_tipe'), {url: $('#filter_tipe').data('url'),});
+    CustomInitSelect2($('#filter_kategori'), {url: $('#filter_kategori').data('url'),});
 
-function test(date)
-{
-    var akhir = new Date(date);
-    var today = new Date();
-    var d = new Date();
-    d.setMonth(d.getMonth() - 6);
-    if(akhir <= today){
-        console.log('belum merah');
-        if(akhir < d){
-            console.log('aktif');
-        }else{
-            console.log('kuning');
-        }
-    }else{
-        console.log('merah');
+    // Pemicu reload data saat filter diubah
+    $('.select2-filter').on('change', function() {
+        reload_ajax('kerma');
+    });
+
+    if ( ! $.fn.DataTable.isDataTable('#kerma') ) {
+        // Setup datatables paging info
+        $.fn.dataTableExt.oApi.fnPagingInfo = function(oSettings)
+        {
+            return {
+                "iStart": oSettings._iDisplayStart,
+                "iEnd": oSettings.fnDisplayEnd(),
+                "iLength": oSettings._iDisplayLength,
+                "iTotal": oSettings.fnRecordsTotal(),
+                "iFilteredTotal": oSettings.fnRecordsDisplay(),
+                "iPage": Math.ceil(oSettings._iDisplayStart / oSettings._iDisplayLength),
+                "iTotalPages": Math.ceil(oSettings.fnRecordsDisplay() / oSettings._iDisplayLength)
+            };
+        };
+
+        $("#kerma").dataTable({
+            initComplete: function() {
+                var api = this.api();
+                $('#mytable_filter input')
+                    .off('.DT')
+                    .on('input.DT', function() {
+                        api.search(this.value).draw();
+                });
+            },
+            oLanguage: {
+                sProcessing: "loading..."
+            },
+            processing: true,
+            serverSide: true,
+            ajax: {
+                url: site + 'publik/data_kerma',
+                type: "POST",
+                data: function(data){
+                    var value = $.cookie('csrf_cookie_name');
+                    data[csrfname] = value;
+                    $('.select2-filter').each(function(index, element) {
+                        var item = $(element);
+                        data[item.attr('name')] = item.val();  
+                    });
+                },
+            },
+            columns: [
+                {
+                    data: "id",
+                    orderable: false,
+                    searchable: false,
+                    render: function (data, type, row, meta) {
+                        return meta.row + meta.settings._iDisplayStart + 1;
+                    }
+                },
+                { data: "nm_unit" },
+                { data: "mitra" },
+                {
+                    data: "tanggal_mulai",
+                    render: function(data, type, row) {
+                        return `${data} s/d ${row.tanggal_selesai}`;
+                    }
+                },
+                { data: "nama_tipe" },
+                { 
+                    data: "tanggal_selesai",
+                    orderable: false,
+                    searchable: false,
+                    render: function (data, type, row, meta) {
+                        var akhir = new Date(data);
+                        var today = new Date();
+                        if(today <= akhir){
+                            return '<span class="badge bg-primary">AKTIF</span>';
+                        }else{
+                            return '<span class="badge bg-danger">TIDAK AKTIF</span>';
+                        }
+                    } 
+                },
+                {
+                    data: "dokumen",
+                    render: function(data){
+                        var button = ' - ';
+                        if(data != ''){
+                            button = `<a class="btn btn-sm btn-success download-dokumen" href="${site}/uploads/kerma/${data}">
+                            <i class="fa fa-file-download"></i> Download</a>`;
+                        }
+                        return button;
+                    }
+                }
+            ],
+            order: [[1, 'asc']],
+            rowCallback: function(row, data, iDisplayIndex) {
+                var info = this.fnPagingInfo();
+                var page = info.iPage;
+                var length = info.iLength;
+                $('td:eq(0)', row).html();
+            }
+        });
+    } else {
+        $('#kerma').DataTable().ajax.reload();
     }
-}
+});

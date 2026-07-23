@@ -191,4 +191,40 @@ class Publik extends MY_Controller
 
         // $this->_json(['status' => TRUE]);
     }
+    public function cari_unit_select2()
+    {
+        if ($this->input->is_ajax_request()) {
+            $this->load->model('kerja_sama/Kerma_model', 'kerma');
+            $result = $this->kerma->get_unit_select2();
+            $json = [];
+            foreach ($result as $row) {
+                $json[] = ['id' => $row->id, 'text' => $row->nm_unit];
+            }
+            echo json_encode($json);
+        }
+    }
+    public function cari_tipe_select2()
+    {
+        if ($this->input->is_ajax_request()) {
+            $this->load->model('kerja_sama/Kerma_model', 'kerma');
+            $result = $this->kerma->get_tipe_select2();
+            $json = [];
+            foreach ($result as $row) {
+                $json[] = ['id' => $row->id, 'text' => $row->nama_tipe];
+            }
+            echo json_encode($json);
+        }
+    }
+    public function cari_kategori_select2()
+    {
+        if ($this->input->is_ajax_request()) {
+            $this->load->model('kerja_sama/Kerma_model', 'kerma');
+            $result = $this->kerma->get_kategori_select2();
+            $json = [];
+            foreach ($result as $row) {
+                $json[] = ['id' => $row->id, 'text' => $row->nama];
+            }
+            echo json_encode($json);
+        }
+    }
 }

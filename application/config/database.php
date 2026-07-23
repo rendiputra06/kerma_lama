@@ -6,10 +6,10 @@ $query_builder = TRUE;
 
 $db['default'] = array(
 	'dsn'	=> '',
-	'hostname' => 'localhost',
-	'username' => 'u586555303_kerma',
-	'password' => 'Kerma0521',
-	'database' => 'u586555303_kerma',
+	'hostname' => getenv('DB_HOST') ?: 'db',
+	'username' => getenv('DB_USERNAME') ?: 'u586555303_kerma',
+	'password' => getenv('DB_PASSWORD') ?: 'password',
+	'database' => getenv('DB_DATABASE') ?: 'u586555303_kerma',
 	'dbdriver' => 'mysqli',
 	'dbprefix' => '',
 	'pconnect' => FALSE,
@@ -26,12 +26,14 @@ $db['default'] = array(
 	'save_queries' => TRUE
 );
 
+// Catatan: Koneksi 'siakad' merupakan koneksi eksternal.
+// Jika tidak dapat terhubung dari lokal, Anda mungkin perlu menyesuaikan atau men-disable model terkait (Siakad_model.php).
 $db['siakad'] = array(
 	'dsn'    => '',
-	'hostname' => '45.64.255.105',
-	'username' => 'simak',
-	'password' => 's!4K4d$emas',
-	'database' => 'siak101013_public',
+	'hostname' => getenv('SIAKAD_DB_HOST') ?: '45.64.255.105',
+	'username' => getenv('SIAKAD_DB_USERNAME') ?: 'simak',
+	'password' => getenv('SIAKAD_DB_PASSWORD') ?: 's!4K4d$emas',
+	'database' => getenv('SIAKAD_DB_DATABASE') ?: 'siak101013_public',
 	'dbdriver' => 'mysqli',
 	'dbprefix' => '',
 	'pconnect' => false,

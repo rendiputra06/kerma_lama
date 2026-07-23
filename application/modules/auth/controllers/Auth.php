@@ -14,13 +14,16 @@ class Auth extends MY_Controller
 		$this->load->library('email');
 		$this->session->set_flashdata('segment', explode('/', $this->uri->uri_string()));
 
-		// Include the google api php libraries
-		// $this->load->model('google_oauth_model'); // modular model
-		$this->load->config('auth/google_config'); // modular config
 		$this->load->config('auth/email'); // modular email
+	}
 
-		include_once APPPATH . "libraries/Google/Google_Client.php";
-		include_once APPPATH . "libraries/Google/contrib/Google_Oauth2Service.php";
+	public function index()
+	{
+		if ($this->ion_auth->logged_in()) {
+			redirect('beranda');
+		} else {
+			redirect('login');
+		}
 	}
 
 	private function output_json($data)
@@ -64,14 +67,26 @@ class Auth extends MY_Controller
 		$this->form_validation->set_rules('password', str_replace(':', '', $this->lang->line('login_password_label')), 'required|trim');
 
 		if ($this->form_validation->run() === TRUE) {
+			$identity = $this->input->post('identity');
+			
+			// Cek apakah batas percobaan login salah telah terlampaui
+			if ($this->ion_auth->is_max_login_attempts_exceeded($identity)) {
+				$data = [
+					'status' => false,
+					'failed' => 'Terlalu banyak percobaan login yang gagal. Akun Anda dikunci sementara.',
+				];
+				$this->output_json($data);
+				return;
+			}
+
 			$remember = (bool)$this->input->post('remember');
 			// check by email
-			$login = $this->ion_auth->login($this->input->post('identity'), $this->input->post('password'), $remember);
+			$login = $this->ion_auth->login($identity, $this->input->post('password'), $remember);
 			if (!$login) {
 				$this->ion_auth_model->identity_column = 'username';
 
 				// check by username
-				$login = $this->ion_auth->login($this->input->post('identity'), $this->input->post('password'), $remember);
+				$login = $this->ion_auth->login($identity, $this->input->post('password'), $remember);
 			}
 			if ($login) {
 				$this->cek_akses();

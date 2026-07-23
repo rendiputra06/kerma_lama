@@ -65,22 +65,46 @@ class Kerja_sama extends MY_Controller
                 );
                 $data = ['status' => FALSE, 'errors' => $errors];
             } else {
+                $upload_error = null;
+                $dokumen = '';
+                $has_file = (isset($_FILES['dokumen']['name']) && $_FILES['dokumen']['name'] != '');
+
                 if ($mode == 'add') {
-                    $dokumen = $this->_upload_dokumen();
-                    $data = $this->kerma->insert_data($dokumen);
+                    if ($has_file) {
+                        $upload = $this->_upload_dokumen();
+                        if ($upload['status'] === FALSE) {
+                            $upload_error = $upload['msg'];
+                        } else {
+                            $dokumen = $upload['file_name'];
+                        }
+                    }
+                    if ($upload_error === null) {
+                        $data = $this->kerma->insert_data($dokumen);
+                    } else {
+                        $data = ['status' => FALSE, 'errors' => ['dokumen' => $upload_error]];
+                    }
                 } else {
                     $id = $this->input->post('id');
                     $old_kerma = $this->kerma->get_kerma($id)->row();
-                    if (isset($_FILES['dokumen']['name']) && $_FILES['dokumen']['name'] != '') {
-                        // hapus file yang lama
-                        if (file_exists('uploads/kerma/' . $old_kerma->dokumen) && $old_kerma->dokumen) {
-                            unlink('uploads/kerma/' . $old_kerma->dokumen);
+                    if ($has_file) {
+                        $upload = $this->_upload_dokumen();
+                        if ($upload['status'] === FALSE) {
+                            $upload_error = $upload['msg'];
+                        } else {
+                            // hapus file yang lama
+                            if (file_exists('uploads/kerma/' . $old_kerma->dokumen) && $old_kerma->dokumen) {
+                                unlink('uploads/kerma/' . $old_kerma->dokumen);
+                            }
+                            $dokumen = $upload['file_name'];
                         }
-                        $dokumen = $this->_upload_dokumen();
                     } else {
                         $dokumen = $old_kerma->dokumen;
                     }
-                    $data = $this->kerma->update_data($dokumen);
+                    if ($upload_error === null) {
+                        $data = $this->kerma->update_data($dokumen);
+                    } else {
+                        $data = ['status' => FALSE, 'errors' => ['dokumen' => $upload_error]];
+                    }
                 }
             }
             $this->output->set_content_type('application/json')->set_output(json_encode($data));
@@ -89,19 +113,22 @@ class Kerja_sama extends MY_Controller
     private function _upload_dokumen()
     {
         $config['upload_path'] = 'uploads/kerma'; //path folder
-        $config['allowed_types'] = '*';
+        $config['allowed_types'] = 'pdf|doc|docx|xls|xlsx|ppt|pptx|png|jpg|jpeg';
         $config['encrypt_name'] = TRUE; //nama yang terupload nantinya
 
         $this->load->library('upload', $config);
 
         if (!$this->upload->do_upload('dokumen')) //upload and validate
         {
-            $hasil = array(
-                'status_file' => FALSE,
-                'msg' => $this->upload->display_errors()
+            return array(
+                'status' => FALSE,
+                'msg' => $this->upload->display_errors('', '')
             );
         }
-        return $this->upload->data('file_name');
+        return array(
+            'status' => TRUE,
+            'file_name' => $this->upload->data('file_name')
+        );
     }
     public function editAjax()
     {

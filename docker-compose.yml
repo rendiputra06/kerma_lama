@@ -1,0 +1,36 @@
+services:
+  web:
+    build: .
+    ports:
+      - "8010:80"
+    volumes:
+      - .:/var/www/html
+    environment:
+      - APACHE_RUN_USER=www-data
+      - APACHE_RUN_GROUP=www-data
+      - DB_HOST=${DB_HOST:-db}
+      - DB_USERNAME=${DB_USERNAME:-u586555303_kerma}
+      - DB_PASSWORD=${DB_PASSWORD:-password}
+      - DB_DATABASE=${DB_DATABASE:-u586555303_kerma}
+      - SIAKAD_DB_HOST=${SIAKAD_DB_HOST:-45.64.255.105}
+      - SIAKAD_DB_USERNAME=${SIAKAD_DB_USERNAME:-simak}
+      - SIAKAD_DB_PASSWORD=${SIAKAD_DB_PASSWORD:-s!4K4d$$emas} # Escape $emas using $$
+      - SIAKAD_DB_DATABASE=${SIAKAD_DB_DATABASE:-siak101013_public}
+    depends_on:
+      - db
+
+  db:
+    image: mariadb:10.5
+    ports:
+      - "3307:3306" # Dipetakan ke 3307 di host karena port 3306 sudah terpakai
+    environment:
+      MARIADB_ROOT_PASSWORD: root
+      MARIADB_DATABASE: ${DB_DATABASE:-u586555303_kerma}
+      MARIADB_USER: ${DB_USERNAME:-u586555303_kerma}
+      MARIADB_PASSWORD: ${DB_PASSWORD:-password}
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./u586555303_kerma.sql:/docker-entrypoint-initdb.d/u586555303_kerma.sql
+
+volumes:
+  db_data:

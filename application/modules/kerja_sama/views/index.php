@@ -40,6 +40,12 @@
                             <option value="2">Perpanjangan</option>
                         </select>
                     </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Kategori Mitra</label>
+                        <select class="form-control select2-filter" name="filter_kategori" id="filter_kategori" data-url="kerja_sama/cari_kategori_select2" style="width: 100%;">
+                            <option value="">Pilih Kategori Mitra</option>
+                        </select>
+                    </div>
                 </div>
             </div>
             <div class="card-body">

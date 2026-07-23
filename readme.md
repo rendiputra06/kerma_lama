@@ -1,57 +1,71 @@
-# CIA HMVC
-Code Igniter Automation - Modular HMVC
+# Sistem Informasi Kerja Sama (SIMKERMA) - CodeIgniter 3 HMVC
 
-## Informasi
-PHP Framework CI v3 dengan template AdminLTE v3 + Bootstrap 4 dan ACL module dari Ion Auth serta CRUD Generator.
+SIMKERMA (Sistem Informasi Kerja Sama) adalah aplikasi berbasis web yang dibangun dengan framework **CodeIgniter 3 HMVC (Modular Extensions)**, menggunakan template **AdminLTE v3 (Bootstrap 4)**, sistem keamanan/ACL dari **Ion Auth**, serta dilengkapi kustomisasi CRUD Generator dari **Harviacode**.
 
-## Initial - 14/5/2020
-1. Update latest `CodeIgniter 3 HMVC` support `php v7.2`.
-2. Integrasi dengan `ADMIN LTE v3` dan `Bootstrap v4`.
-3. Integrasi dengan `Google OAuth2 / Login via Google Account`.
-4. `Registrasi` dan `Aktivasi` baik manual dari `admin` atau pada saat `Login via Google`.
-5. Integrasi `Notifikasi Email` via `sendmail` atau `PHPMailer`.
-6. Generate manual `Kode Aktivasi` atau via `Email`.
-7. Sidebar `dinamis` support `active link`.
-8. Modul `Profile User` termasuk `Image Upload`.
-9. Alert & Modal default dari `Bootstrap 4`.
+Aplikasi ini disesuaikan untuk manajemen dokumen kerja sama (MOU/MOA/IA) pada Universitas Abdurrab.
 
-## Informasi Lain
-1. PHP Framework menggunakan `CodeIgniter 3 HMVC`.
-2. Dashboard Template menggunakan `AdminLTE 3`.
-3. Access Control Login menggunakan `Ion Auth`.
-4. Kostumisasi `Ion Auth`:
-    * CRUD user
-    * CRUD group
-    * Identity Login by `username` atau `email`.
-5. `CRUD` kostumisasi dari `Harviacode`.
-6. Kustomisasi `Harviacode`:
-    * Exclude nama tabel `users`, `groups`, `users_groups` dan `menu` pada menu `Select Table`.
-    * Set default generator folder pada `./application/modules/`.
-    * Tambah variabel `title` dan `description` pada setiap `View` dan `Breadcrumbs`.
-    * Default `View` menggunakan `Datatables Bootstrap 4` template.
-7. Database dump `cia-hmvc.sql` ada di folder `sql`.
-8. Konfigurasi Google `client-id` dan `client-secret` di `google_config.php`.
-9. Konfigurasi Email di `email.php`.
+---
 
-## Akses Login
-Akses login default :
-* Username : `admin` atau `stikom@unbin.ac.id`.
-* Password : `password`.
+## ⚡ Cara Menjalankan Project dengan Docker
 
-## Instalasi
-1. Clone repo di webserver
-2. Buat database, sesuaikan konfigurasi-nya pada `database.php` pada folder `application/config/`.
-3. Query SQL `cia-hmvc.sql` yang ada di folder `sql`.
-4. Agar CRUD berfungsi normal, set recursive `permission` 777 pada folder `application/modules/`.
-```
-chmod -R 0777 /path-ke-folder-webserver/application/modules/
-```
-5. Sesuaikan konfigurasi pada folder `application/modules/auth/config/`.
-    * Agar pengiriman email berfungsi normal, sesuaikan konfigurasi `username email` dan `password ` di `email.php`.
-    * Agar `Google Login OAuth2` berfungsi normal, sesuaikan konfigurasi `client-id` dan `client-secret` di `google_config.php`
+Cara tercepat dan paling direkomendasikan untuk menjalankan project ini secara lokal adalah menggunakan **Docker Compose**. Dengan Docker, Anda tidak perlu menginstal PHP 7.4 secara manual di sistem operasi Anda.
 
-## Demo
-Demo website di https://andynar.id/login
+### 📋 Prasyarat
+Pastikan Anda sudah menginstal:
+*   [Docker](https://docs.docker.com/get-docker/)
+*   [Docker Compose](https://docs.docker.com/compose/install/)
 
-## Penutup
-Semoga bermanfaat.
+### 🚀 Langkah-Langkah Menjalankan
+1.  **Clone Repositori**
+    Clone project ini ke komputer lokal Anda.
+
+2.  **Siapkan Konfigurasi Lingkungan (.env) & Database**
+    Salin berkas konfigurasi `.env.example` ke `.env` (silakan sesuaikan nilainya jika diperlukan):
+    ```bash
+    cp .env.example .env
+    ```
+    Kemudian, salin berkas konfigurasi database CodeIgniter khusus Docker:
+    ```bash
+    cp application/config/database.php.docker application/config/database.php
+    ```
+
+
+3.  **Jalankan Container Docker**
+    Di terminal pada direktori root project, jalankan perintah berikut:
+    ```bash
+    docker compose up -d --build
+    ```
+    *Catatan: Docker secara otomatis akan membangun container web (PHP 7.4 + Apache) dan container database (MariaDB 10.5). Berkas basis data `u586555303_kerma.sql` akan diimpor secara otomatis saat container database pertama kali dibuat.*
+
+4.  **Akses Aplikasi**
+    Buka browser Anda dan akses:
+    *   **Aplikasi Web**: [http://localhost:8010](http://localhost:8010)
+    *   **Database (MariaDB)**: Port `3307` (Username: `root`, Password: `root`)
+
+---
+
+## 🔑 Akses Login Default
+
+Gunakan kredensial berikut untuk masuk ke dashboard admin:
+*   **Email/Username**: `sutaji@univrab.ac.id` atau `admin`
+*   **Password**: `password`
+
+---
+
+## 📂 Struktur Penting & Direktori Upload
+Berkas unggahan diabaikan oleh Git. Container Docker secara otomatis membuat folder-folder ini pada saat build. Jika Anda menjalankannya di luar Docker, pastikan folder berikut dibuat secara manual di root project dan memiliki izin tulis (`chmod 777`):
+*   `uploads/kerma/` (untuk dokumen kerja sama)
+*   `uploads/panduan/` (untuk dokumen panduan)
+*   `uploads/kegiatan/` (untuk dokumentasi kegiatan)
+*   `uploads/penerapan/` (untuk berkas implementasi)
+
+---
+
+## 🛠️ Informasi Teknis & Fitur
+1.  **Framework**: CodeIgniter v3.1.x (HMVC support php v7.4).
+2.  **UI/UX**: AdminLTE v3 + Bootstrap v4 + Select2.
+3.  **ACL**: Ion Auth (Manajemen user, group, dan izin akses).
+4.  **CRUD Generator**: Harviacode (Output otomatis disimpan di `./application/modules/`).
+5.  **Dual Database**:
+    *   `default`: Menghubungkan ke container MariaDB lokal.
+    *   `siakad`: Menghubungkan ke database akademik eksternal (`45.64.255.105`). *Catatan: Jika koneksi eksternal ini gagal/timeout saat di lokal, harap sesuaikan atau mock pemanggilannya di `Siakad_model.php`.*
