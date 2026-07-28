@@ -23,7 +23,7 @@ class Kerja_sama extends MY_Controller
         $this->template->javascript->add('partial/libs/select2/js/select2.full.min.js');
         $this->template->javascript->add('partial/libs/dropify/js/dropify.min.js');
         $this->template->javascript->add('partial/libs/jquery-file/jquery.fileDownload.js');
-        $this->template->javascript->add('partial/js/kerma/kerja_sama.js?v=0.1.4');
+        $this->template->javascript->add('partial/js/kerma/kerja_sama.js?v=0.1.5');
         $data['prodi'] = null;
         if ($this->ion_auth->in_group('prodi')) {
             $data['prodi'] = $this->kerma->get_user_prodi($this->user->id_tendik);
@@ -271,7 +271,7 @@ class Kerja_sama extends MY_Controller
         $no = 1;
         foreach ($data as $row) {
             // Tentukan status otomatis
-            $status = $this->getStatusKerma($row->tanggal_mulai, $row->tanggal_selesai);
+            $status = $this->getStatusKerma($row->tanggal_mulai, $row->tanggal_selesai, $row->nama_tipe);
     
             $writer->writeSheetRow('Sheet1', [
                 $no++,
@@ -293,8 +293,12 @@ class Kerja_sama extends MY_Controller
     }
     
     // Helper status untuk kerma
-    private function getStatusKerma($mulai, $selesai)
+    private function getStatusKerma($mulai, $selesai, $nama_tipe = null)
     {
+        // Pengecualian: tipe IA tidak memiliki masa berlaku
+        if ($nama_tipe === 'IA') {
+            return '-';
+        }
         $today = date('Y-m-d');
         if ($selesai < $today) {
             return 'Selesai';

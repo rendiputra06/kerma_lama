@@ -140,6 +140,10 @@ $(document).ready(function(){
                 }
             ],
             createdRow: function( row, data, dataIndex ) {
+                // Pengecualian: tipe IA tidak dihitung masa berlakunya
+                if (data.nama_tipe === 'IA') {
+                    return;
+                }
                 var selesai = new Date(data.tanggal_selesai);
                 var today = new Date();
                 var d = new Date(data.tanggal_selesai);

@@ -28,16 +28,20 @@ class Kerma_model extends CI_Model
         }
         $filter_status = $this->input->post('filter_status');
         $today = date('Y-m-d');
-        // Mengubah logika filter berdasarkan status
+        // Mengubah logika filter berdasarkan status, kecuali untuk tipe IA
+        $five_months_later = date('Y-m-d', strtotime('+5 months', strtotime($today)));
         if ($filter_status == '0') { // Aktif
-            $this->datatables->where('tanggal_selesai >=', $today);
-            // Pastikan tidak ada entri yang akan berakhir dalam waktu dekat
-            $this->datatables->where('tanggal_selesai >', date('Y-m-d', strtotime('+5 months', strtotime($today))));
+            // IA selalu dianggap aktif (tidak ada masa berlaku), OR kerja sama lain yang belum akan berakhir
+            $this->datatables->where("(c.nama_tipe = 'IA' OR (tanggal_selesai >= '$today' AND tanggal_selesai > '$five_months_later'))");
         } elseif ($filter_status == '1') { // Akan Berakhir
-            $this->datatables->where('tanggal_selesai >', $today); // Hanya ambil yang akan berakhir setelah hari ini
-            $this->datatables->where('tanggal_selesai <=', date('Y-m-d', strtotime('+5 months', strtotime($today)))); // Dalam 5 bulan ke depan
+            // IA tidak masuk kategori "Akan Berakhir"
+            $this->datatables->where("(c.nama_tipe IS NULL OR c.nama_tipe != 'IA')");
+            $this->datatables->where('tanggal_selesai >', $today);
+            $this->datatables->where('tanggal_selesai <=', $five_months_later);
         } elseif ($filter_status == '2') { // Selesai
-            $this->datatables->where('tanggal_selesai <', $today); // Hanya ambil yang sudah selesai
+            // IA tidak masuk kategori "Selesai"
+            $this->datatables->where("(c.nama_tipe IS NULL OR c.nama_tipe != 'IA')");
+            $this->datatables->where('tanggal_selesai <', $today);
         }
         return $this->datatables->generate();
     }
@@ -166,14 +170,18 @@ class Kerma_model extends CI_Model
             $this->db->where('a.kategori_id', $kategori);
         }
     
-        // Filter status aktif, akan berakhir, selesai
+        // Filter status aktif, akan berakhir, selesai — kecuali untuk tipe IA
         if ($filter_status === '0') { // Aktif
-            $this->db->where('tanggal_selesai >=', $today);
-            $this->db->where('tanggal_selesai >', date('Y-m-d', strtotime('+5 months', strtotime($today))));
+            // IA selalu dianggap aktif, gunakan OR
+            $this->db->where('(c.nama_tipe = \'IA\' OR (tanggal_selesai >= \'' . $today . '\' AND tanggal_selesai > \'' . date('Y-m-d', strtotime('+5 months', strtotime($today))) . '\'))');
         } elseif ($filter_status === '1') { // Akan Berakhir
+            // IA tidak masuk kategori ini
+            $this->db->where('(c.nama_tipe IS NULL OR c.nama_tipe != \'IA\')');
             $this->db->where('tanggal_selesai >', $today);
             $this->db->where('tanggal_selesai <=', date('Y-m-d', strtotime('+5 months', strtotime($today))));
         } elseif ($filter_status === '2') { // Selesai
+            // IA tidak masuk kategori ini
+            $this->db->where('(c.nama_tipe IS NULL OR c.nama_tipe != \'IA\')');
             $this->db->where('tanggal_selesai <', $today);
         }
     

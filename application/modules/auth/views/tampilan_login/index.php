@@ -14,7 +14,6 @@
                                 <div class="text-center">
                                     <h5 class="mb-0">Selamat Datang !</h5>
                                     <p class="text-muted mt-2">Silahkan login untuk melanjutkan</p>
-
                                 </div>
                                 <?= form_open("auth/cek_login", array('class' => 'custom-form mt-4 pt-2', 'id' => 'login')); ?>
                                 <div id="infoMessage" class="text-center alert-dismissible"><?php echo $message; ?></div>
