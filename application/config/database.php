@@ -6,9 +6,9 @@ $query_builder = TRUE;
 
 $db['default'] = array(
 	'dsn'	=> '',
-	'hostname' => getenv('DB_HOST') ?: 'db',
+	'hostname' => getenv('DB_HOST') ?: 'localhost',
 	'username' => getenv('DB_USERNAME') ?: 'u586555303_kerma',
-	'password' => getenv('DB_PASSWORD') ?: 'password',
+	'password' => getenv('DB_PASSWORD') ?: '3ii3M73cTI?F',
 	'database' => getenv('DB_DATABASE') ?: 'u586555303_kerma',
 	'dbdriver' => 'mysqli',
 	'dbprefix' => '',

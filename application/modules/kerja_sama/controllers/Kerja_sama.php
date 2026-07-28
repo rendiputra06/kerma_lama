@@ -23,7 +23,7 @@ class Kerja_sama extends MY_Controller
         $this->template->javascript->add('partial/libs/select2/js/select2.full.min.js');
         $this->template->javascript->add('partial/libs/dropify/js/dropify.min.js');
         $this->template->javascript->add('partial/libs/jquery-file/jquery.fileDownload.js');
-        $this->template->javascript->add('partial/js/kerma/kerja_sama.js?v=0.1.3');
+        $this->template->javascript->add('partial/js/kerma/kerja_sama.js?v=0.1.4');
         $data['prodi'] = null;
         if ($this->ion_auth->in_group('prodi')) {
             $data['prodi'] = $this->kerma->get_user_prodi($this->user->id_tendik);

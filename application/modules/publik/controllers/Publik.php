@@ -58,7 +58,7 @@ class Publik extends MY_Controller
         $this->_assets_table();
         $this->breadcrumbs->push('Kerja Sama', '/publik/kerja_sama');
         $this->template->javascript->add('partial/libs/apexcharts/apexcharts.min.js');
-        $this->template->javascript->add('partial/js/publik/kerma.js');
+        $this->template->javascript->add('partial/js/publik/kerma.js?v=0.0.1');
         $this->template->content->view('kerja_sama');
         $this->template->publish('public');
     }
