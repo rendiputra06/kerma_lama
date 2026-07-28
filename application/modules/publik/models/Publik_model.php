@@ -16,8 +16,16 @@ class Publik_model extends CI_Model
         }
         return $this->db->get('kerma_panduan');
     }
-    private function rand_color()
+    private function rand_color($index = 0)
     {
+        $palette = [
+            '#4f46e5', '#06b6d4', '#10b981', '#f59e0b', '#8b5cf6',
+            '#ec4899', '#3b82f6', '#14b8a6', '#84cc16', '#eab308',
+            '#f97316', '#ef4444', '#6366f1', '#0284c7', '#059669'
+        ];
+        if (isset($palette[$index])) {
+            return $palette[$index];
+        }
         return sprintf('#%06X', mt_rand(0, 0xFFFFFF));
     }
     public function get_chart()
@@ -26,14 +34,52 @@ class Publik_model extends CI_Model
         $this->db->from('kerma_unit');
         $data = $this->db->get()->result();
         $trow = [];
+        $i = 0;
         foreach ($data as $row) {
-            $trow[] = array(
-                'prodi' => $row->nm_unit,
-                'value' => $row->jumlah,
-                'color' => $this->rand_color()
-            );
+            if ($row->jumlah > 0) {
+                $trow[] = array(
+                    'prodi' => $row->nm_unit,
+                    'value' => (int)$row->jumlah,
+                    'color' => $this->rand_color($i++)
+                );
+            }
         }
         return $trow;
+    }
+
+    public function get_summary_tipe()
+    {
+        $this->db->select('t.id, t.nama_tipe, t.slug, 
+            COUNT(k.id) as total,
+            SUM(CASE WHEN k.tanggal_selesai >= CURDATE() THEN 1 ELSE 0 END) as total_aktif,
+            SUM(CASE WHEN k.tanggal_selesai < CURDATE() THEN 1 ELSE 0 END) as total_expired');
+        $this->db->from('kerma_tipe t');
+        $this->db->join('kerma k', 't.id = k.tipe_id', 'left');
+        $this->db->group_by('t.id, t.nama_tipe, t.slug');
+        $this->db->order_by('t.id', 'ASC');
+        return $this->db->get()->result();
+    }
+
+    public function get_total_stats()
+    {
+        $total_kerma = $this->db->count_all('kerma');
+
+        $this->db->where('tanggal_selesai >=', date('Y-m-d'));
+        $total_aktif = $this->db->count_all_results('kerma');
+
+        $this->db->where('tanggal_selesai <', date('Y-m-d'));
+        $total_expired = $this->db->count_all_results('kerma');
+
+        $total_unit = $this->db->count_all('kerma_unit');
+        $total_tipe = $this->db->count_all('kerma_tipe');
+
+        return (object)[
+            'total_kerma'   => $total_kerma,
+            'total_aktif'   => $total_aktif,
+            'total_expired' => $total_expired,
+            'total_unit'    => $total_unit,
+            'total_tipe'    => $total_tipe,
+        ];
     }
     // ======== KERMA ================
     public function getDataKerma()

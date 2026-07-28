@@ -15,13 +15,18 @@ class Publik extends MY_Controller
         $this->_assets_table();
         $this->template->stylesheet->add('partial/libs/chart.js/Chart.min.css');
         $this->template->javascript->add('partial/libs/chart.js/Chart.min.js');
-        $this->template->javascript->add('partial/js/publik/index.js');
-        $this->template->content->view('index');
+        $this->template->javascript->add('partial/js/publik/index.js?v=0.0.1');
+        
+        $data['tipe_summary'] = $this->publik->get_summary_tipe();
+        $data['total_stats']  = $this->publik->get_total_stats();
+
+        $this->template->content->view('index', $data);
         $this->template->publish('public');
     }
     public function jenis_data()
     {
         if ($this->input->is_ajax_request()) {
+            $this->load->model('beranda/Beranda_model', 'beranda');
             $this->_json($this->beranda->getJenisData(), false);
         }
     }
@@ -29,6 +34,12 @@ class Publik extends MY_Controller
     {
         $this->ajax_only();
         $data = $this->publik->get_chart();
+        $this->_json($data);
+    }
+    public function get_summary_tipe()
+    {
+        $this->ajax_only();
+        $data = $this->publik->get_summary_tipe();
         $this->_json($data);
     }
     public function panduan($mode = '')
