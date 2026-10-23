@@ -95,6 +95,11 @@ class Publik extends MY_Controller
     // ====================================
     // Controller untuk Pengisian Kuisioner
     // ====================================
+    public function kuesioner_gform()
+    {
+        redirect('https://docs.google.com/forms/d/e/1FAIpQLSfpLztb1gOt6bebq4RO4jGmnij-bmrxzFcETXxDWQ2OIa6Vbw/viewform');
+    }
+
     public function kuisioner($token)
     {
         $this->template->title = 'Kuisioner';

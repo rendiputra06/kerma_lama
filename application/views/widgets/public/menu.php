@@ -23,6 +23,12 @@
                             <span data-key="t-components">Kerja Sama</span>
                         </a>
                     </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle arrow-none" href="<?= site_url('kuesioner_gform') ?>" id="topnav-uielement" role="button" target="_blank">
+                            <i data-feather="check-square"></i>
+                            <span data-key="t-components">Kuesioner</span>
+                        </a>
+                    </li>
                     <!--<li class="nav-item dropdown">-->
                     <!--    <a class="nav-link dropdown-toggle arrow-none" href="<?= site_url('publik/laporan') ?>" role="button">-->
                     <!--        <i data-feather="layout"></i><span data-key="t-horizontal">Laporan</span>-->

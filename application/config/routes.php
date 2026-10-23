@@ -14,6 +14,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
 
 $route['default_controller']            = 'publik';
 $route['dashboard']                     = 'beranda';
+$route['kuesioner_gform']               = 'publik/kuesioner_gform';
 
 $route['deactivate/(:num)']             = 'auth/deactivate/$1';
 $route['activate/(:num)']               = 'auth/activate/$1';
