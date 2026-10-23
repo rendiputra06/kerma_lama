@@ -223,69 +223,115 @@ class Kerja_sama extends MY_Controller
         header('Set-Cookie: fileDownload=true; path=/');
         header('Cache-Control: max-age=60, must-revalidate');
     
-        // === STYLES (dipertahankan dari versi kamu) ===
-        $styles = array(
-            'widths' => [5, 40, 80, 50, 15, 15, 30, 20, 20, 20],
-            'font' => 'Arial',
-            'font-size' => 10,
-            'font-style' => 'bold',
-            'fill' => '#eee',
-            'halign' => 'center',
-            'border' => 'left,right,top,bottom'
-        );
-    
-        $styles2 = array(
-            ['border' => 'left,right,top,bottom', 'fill' => '#ffc'],
-            ['border' => 'left,right,top,bottom', 'fill' => '#fcf'],
-            ['border' => 'left,right,top,bottom', 'fill' => '#ccf'],
-            ['border' => 'left,right,top,bottom', 'fill' => '#cff', 'halign' => 'center'],
-            ['border' => 'left,right,top,bottom', 'fill' => '#cff', 'halign' => 'center'],
-            ['border' => 'left,right,top,bottom', 'fill' => '#cff'],
-            ['border' => 'left,right,top,bottom', 'fill' => '#cff'],
-            ['border' => 'left,right,top,bottom', 'fill' => '#cff'],
-            ['border' => 'left,right,top,bottom', 'fill' => '#cff', 'halign' => 'center'],
-            ['border' => 'left,right,top,bottom', 'fill' => '#cff', 'halign' => 'center'],
-            ['border' => 'left,right,top,bottom', 'fill' => '#cff', 'halign' => 'center'],
-        );
-    
-        // === HEADER BARU (gabungan tipe dan jenis) ===
+        // === HEADER & KOLOM EXCEL ===
         $header = array(
-            'No' => 'integer',
-            'Fakultas/Prodi/Bagian' => 'string',
-            'Judul' => 'string',
+            'No'                      => 'integer',
+            'Fakultas/Prodi/Bagian'   => 'string',
+            'Judul'                   => 'string',
             'Lembaga Mitra Kerjasama' => 'string',
-            'Jenis Kerjasama' => 'string',  // Dalam / Luar Negeri
-            'Tipe Kerjasama' => 'string',   // MoU / MoA
-            'Kategori Mitra' => 'string',   // Kategori Mitra
-            'Mulai' => 'string',
-            'Berakhir' => 'string',
-            'Di Upload' => 'string',
-            'Status' => 'string',
+            'Jenis Kerjasama'         => 'string',  // Dalam / Luar Negeri
+            'Tipe Kerjasama'          => 'string',   // MoU / MoA
+            'Kategori Mitra'          => 'string',   // Kategori Mitra
+            'Mulai'                   => 'string',
+            'Berakhir'                => 'string',
+            'Di Upload'               => 'string',
+            'Status'                  => 'string',
+            'Dokumen'                 => 'string',
         );
-    
+
+        // === STYLING HEADER ===
+        $header_style = array(
+            'widths'        => [6, 35, 50, 35, 18, 16, 25, 15, 15, 15, 16, 20],
+            'font'          => 'Calibri',
+            'font-size'     => 10,
+            'font-style'    => 'bold',
+            'fill'          => '#1e3a8a', // Deep Navy Blue
+            'color'         => '#ffffff',
+            'halign'        => 'center',
+            'valign'        => 'center',
+            'border'        => 'left,right,top,bottom',
+            'border-style'  => 'thin',
+            'border-color'  => '#172554',
+            'auto_filter'   => true,      // Aktifkan dropdown filter Excel di baris header
+            'freeze_rows'   => 1,         // Kunci (freeze) baris header saat discroll
+        );
+
         // === TULIS KE FILE EXCEL ===
         $writer = new XLSXWriter();
         $writer->setAuthor('KERMA UNIVRAB');
-        $writer->writeSheetHeader('Sheet1', $header, $styles);
-    
+        $writer->writeSheetHeader('Sheet1', $header, $header_style);
+
         $no = 1;
         foreach ($data as $row) {
             // Tentukan status otomatis
             $status = $this->getStatusKerma($row->tanggal_mulai, $row->tanggal_selesai, $row->nama_tipe);
-    
+
+            // Tautan Dokumen (formula HYPERLINK agar bisa diklik di Excel)
+            $has_dokumen = !empty($row->dokumen);
+            if ($has_dokumen) {
+                $dokumen_url = base_url('uploads/kerma/' . $row->dokumen);
+                $dokumen_val = '=HYPERLINK("' . str_replace('"', '""', $dokumen_url) . '", "Unduh Dokumen")';
+            } else {
+                $dokumen_val = '-';
+            }
+
+            // Warna teks status
+            $status_color = '#374151';
+            if ($status === 'Aktif') {
+                $status_color = '#15803d'; // Hijau
+            } elseif ($status === 'Akan Berakhir') {
+                $status_color = '#b45309'; // Oranye
+            } elseif ($status === 'Selesai') {
+                $status_color = '#b91c1c'; // Merah
+            }
+
+            // Zebra striping baris tabel (selang-seling putih & abu-abu muda)
+            $row_fill = ($no % 2 === 1) ? '#ffffff' : '#f8fafc';
+
+            $base_cell = [
+                'font'         => 'Calibri',
+                'font-size'    => 10,
+                'valign'       => 'center',
+                'fill'         => $row_fill,
+                'border'       => 'left,right,top,bottom',
+                'border-style' => 'thin',
+                'border-color' => '#e2e8f0',
+            ];
+
+            $row_style = [
+                array_merge($base_cell, ['halign' => 'center']), // No
+                array_merge($base_cell, ['halign' => 'left']),   // Fakultas/Prodi/Bagian
+                array_merge($base_cell, ['halign' => 'left']),   // Judul
+                array_merge($base_cell, ['halign' => 'left']),   // Lembaga Mitra Kerjasama
+                array_merge($base_cell, ['halign' => 'center']), // Jenis Kerjasama
+                array_merge($base_cell, ['halign' => 'center']), // Tipe Kerjasama
+                array_merge($base_cell, ['halign' => 'left']),   // Kategori Mitra
+                array_merge($base_cell, ['halign' => 'center']), // Mulai
+                array_merge($base_cell, ['halign' => 'center']), // Berakhir
+                array_merge($base_cell, ['halign' => 'center']), // Di Upload
+                array_merge($base_cell, ['halign' => 'center', 'font-style' => 'bold', 'color' => $status_color]), // Status
+                $has_dokumen 
+                    ? array_merge($base_cell, ['halign' => 'center', 'color' => '#1d4ed8', 'font-style' => 'underline']) // Link Dokumen
+                    : array_merge($base_cell, ['halign' => 'center', 'color' => '#9ca3af']), // Tanpa Dokumen
+            ];
+
+            // Tanggal upload
+            $di_upload = !empty($row->create_at) ? date('Y-m-d', strtotime($row->create_at)) : '-';
+
             $writer->writeSheetRow('Sheet1', [
                 $no++,
                 $row->nm_unit,
                 $row->judul,
                 $row->mitra,
-                $row->nama_jenis,    // misal: universitas-dalam-negeri → Dalam Negeri
+                $row->nama_jenis,
                 $row->nama_tipe,
                 $row->kategori,
                 $row->tanggal_mulai,
                 $row->tanggal_selesai,
-                $row->create_at,
+                $di_upload,
                 $status,
-            ], $styles2);
+                $dokumen_val,
+            ], $row_style);
         }
     
         $writer->writeToStdOut();
