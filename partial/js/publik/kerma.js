@@ -1,11 +1,24 @@
 $(document).ready(function(){
     // Inisialisasi filter Select2 untuk Halaman Publik
+    CustomInitSelect2($('#filter_jenis'), {url: $('#filter_jenis').data('url'),});
     CustomInitSelect2($('#filter_unit'), {url: $('#filter_unit').data('url'),});
     CustomInitSelect2($('#filter_tipe'), {url: $('#filter_tipe').data('url'),});
     CustomInitSelect2($('#filter_kategori'), {url: $('#filter_kategori').data('url'),});
+    $('#filter_status').select2();
 
     // Pemicu reload data saat filter diubah
     $('.select2-filter').on('change', function() {
+        reload_ajax('kerma');
+    });
+
+    // Reset Filter
+    $('#btn-reset-filter').on('click', function() {
+        $('#filter_jenis').val(null);
+        $('#filter_unit').val(null);
+        $('#filter_tipe').val(null);
+        $('#filter_kategori').val(null);
+        $('#filter_status').val('');
+        $('.select2-filter').trigger('change.select2');
         reload_ajax('kerma');
     });
 

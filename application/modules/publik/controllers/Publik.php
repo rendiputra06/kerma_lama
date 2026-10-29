@@ -69,7 +69,7 @@ class Publik extends MY_Controller
         $this->_assets_table();
         $this->breadcrumbs->push('Kerja Sama', '/publik/kerja_sama');
         $this->template->javascript->add('partial/libs/apexcharts/apexcharts.min.js');
-        $this->template->javascript->add('partial/js/publik/kerma.js?v=0.0.1');
+        $this->template->javascript->add('partial/js/publik/kerma.js?v=0.0.2');
         $this->template->content->view('kerja_sama');
         $this->template->publish('public');
     }
@@ -227,6 +227,18 @@ class Publik extends MY_Controller
             $json = [];
             foreach ($result as $row) {
                 $json[] = ['id' => $row->id, 'text' => $row->nama_tipe];
+            }
+            echo json_encode($json);
+        }
+    }
+    public function cari_jenis_select2()
+    {
+        if ($this->input->is_ajax_request()) {
+            $this->load->model('kerja_sama/Kerma_model', 'kerma');
+            $result = $this->kerma->get_jenis_select2();
+            $json = [];
+            foreach ($result as $row) {
+                $json[] = ['id' => $row->id, 'text' => $row->nama];
             }
             echo json_encode($json);
         }

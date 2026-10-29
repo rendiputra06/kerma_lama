@@ -95,8 +95,20 @@ class Publik_model extends CI_Model
         if ($this->input->post('filter_tipe')) {
             $this->datatables->where('a.tipe_id', $this->input->post('filter_tipe'));
         }
+        if ($this->input->post('filter_jenis')) {
+            $this->datatables->where('a.jenis_id', $this->input->post('filter_jenis'));
+        }
         if ($this->input->post('filter_kategori')) {
             $this->datatables->where('a.kategori_id', $this->input->post('filter_kategori'));
+        }
+        if ($this->input->post('filter_status') !== null && $this->input->post('filter_status') !== '') {
+            $filter_status = $this->input->post('filter_status');
+            $today = date('Y-m-d');
+            if ($filter_status === 'aktif' || $filter_status === '1') {
+                $this->datatables->where('a.tanggal_selesai >=', $today);
+            } elseif ($filter_status === 'nonaktif' || $filter_status === '0') {
+                $this->datatables->where('a.tanggal_selesai <', $today);
+            }
         }
 
         return $this->datatables->generate();
